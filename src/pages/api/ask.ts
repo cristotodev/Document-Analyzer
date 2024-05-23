@@ -1,4 +1,4 @@
-import { modelContext } from "@/utils/ai-model-context";
+import { modelContext } from "@/utils/aiModelContext";
 import { responseSSE } from "@/utils/sse";
 import type { APIRoute } from "astro";
 import { readFile } from 'node:fs/promises';

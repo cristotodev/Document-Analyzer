@@ -13,9 +13,10 @@ interface ChatProps {
 export function Chat(props: ChatProps) {
   const [loading, setLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState<{ question: string, answer: string }[]>([]);
-  const [error, setError] = useState<{ title: string, description: string }>()
+  const [error, setError] = useState<{ title: string, description: string }>();
   const [blockAction, setBlockAction] = useState(false);
   const [loadingText, setLoadingText] = useState(getRandomLoadingText());
+  const [question, setQuestion] = useState<string>("");
   const { file } = props;
 
   const numOfImagesToShow = Math.min(file.pages, 4);
@@ -26,14 +27,19 @@ export function Chat(props: ChatProps) {
       .replace(".pdf", ".jpg");
   });
 
+  const handleChange = (event: any) => {
+    setQuestion(event.target.value);
+  };
+
   const handleSubmit = async (event: any) => {
     event.preventDefault();
+    setQuestion("");
 
     const interval = setInterval(() => {
-      setLoadingText(getRandomLoadingText())
-    }, 5000)
+      setLoadingText(getRandomLoadingText());
+    }, 5000);
 
-    if(blockAction) return;
+    if (blockAction) return;
 
     setBlockAction(true);
     setLoading(true);
@@ -44,7 +50,7 @@ export function Chat(props: ChatProps) {
     searchParams.append('id', '65047c58c185bd39b2b0fd149881e025');
     searchParams.append('question', question);
 
-    const eventSource = new EventSource(`/api/ask?${searchParams.toString()}`)
+    const eventSource = new EventSource(`/api/ask?${searchParams.toString()}`);
     eventSource.onerror = (event) => {
       clearInterval(interval);
       setLoading(false);
@@ -52,21 +58,21 @@ export function Chat(props: ChatProps) {
       setError({
         title: 'Error con tu asistente',
         description: 'Revisa que el modelo que estás usando es el correcto y si ollama está instalado.'
-      })
+      });
       eventSource.close();
 
       setTimeout(() => {
         setError(undefined);
-      }, 5000)
-    }
+      }, 5000);
+    };
 
     eventSource.onmessage = (event) => {
       setLoading(false);
       clearInterval(interval);
-      const incomingData = JSON.parse(event.data)
+      const incomingData = JSON.parse(event.data);
       if (incomingData === "__END__") {
         setBlockAction(false);
-        eventSource.close()
+        eventSource.close();
         return;
       }
 
@@ -84,15 +90,15 @@ export function Chat(props: ChatProps) {
           return [...prevChatHistory];
         });
       }
-    }
-
-  }
+    };
+  };
 
   return (
     <div className="max-w-screen-md mx-auto overflow-hidden h-auto overflow-y-auto">
       <div className="grid grid-cols-4 gap-2">
-        {images.map((img) => (
+        {images.map((img, index) => (
           <img
+            key={index}
             src={img}
             alt="PDF page"
             className="rounded w-full h-auto aspect-[400/540]"
@@ -104,7 +110,6 @@ export function Chat(props: ChatProps) {
           <AlertError title={error.title} description={error.description} />
         </div>
       ) : undefined}
-
 
       {loading ? (
         <div>
@@ -120,7 +125,7 @@ export function Chat(props: ChatProps) {
                 <p className="bg-gray-300 p-2 rounded-lg shadow-md font-medium inline-block">{item.question}</p>
               </div>
               <div className="mt-4 flex justify-start">
-                <p className="bg-white p-2 rounded-lg shadow-md  font-medium">{item.answer}</p>
+                <p className="bg-white p-2 rounded-lg shadow-md font-medium">{item.answer}</p>
               </div>
             </div>
           ))}
@@ -137,10 +142,11 @@ export function Chat(props: ChatProps) {
           placeholder="¿En qué consiste este documento?"
           required
           disabled={blockAction}
+          value={question}
+          onChange={handleChange}
         />
         <Button type="submit" disabled={blockAction}>Consultar</Button>
       </form>
     </div>
-
   );
 }
