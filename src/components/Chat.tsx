@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { useState } from "react";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { AlertError } from "./AlertError";
+import { getRandomLoadingText } from "@/utils/loadingMessages";
 
 interface ChatProps {
   file: File;
@@ -14,6 +15,7 @@ export function Chat(props: ChatProps) {
   const [chatHistory, setChatHistory] = useState<{ question: string, answer: string }[]>([]);
   const [error, setError] = useState<{ title: string, description: string }>()
   const [blockAction, setBlockAction] = useState(false);
+  const [loadingText, setLoadingText] = useState(getRandomLoadingText());
   const { file } = props;
 
   const numOfImagesToShow = Math.min(file.pages, 4);
@@ -26,6 +28,10 @@ export function Chat(props: ChatProps) {
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
+
+    const interval = setInterval(() => {
+      setLoadingText(getRandomLoadingText())
+    }, 5000)
 
     if(blockAction) return;
 
@@ -40,6 +46,7 @@ export function Chat(props: ChatProps) {
 
     const eventSource = new EventSource(`/api/ask?${searchParams.toString()}`)
     eventSource.onerror = (event) => {
+      clearInterval(interval);
       setLoading(false);
       setBlockAction(false);
       setError({
@@ -55,6 +62,7 @@ export function Chat(props: ChatProps) {
 
     eventSource.onmessage = (event) => {
       setLoading(false);
+      clearInterval(interval);
       const incomingData = JSON.parse(event.data)
       if (incomingData === "__END__") {
         setBlockAction(false);
@@ -100,7 +108,7 @@ export function Chat(props: ChatProps) {
 
       {loading ? (
         <div>
-          <LoadingSpinner text="Esperando respuesta ..." />
+          <LoadingSpinner text={loadingText} />
         </div>
       ) : undefined}
 
