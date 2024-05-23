@@ -16,14 +16,14 @@ function ItemStatus({ status, setStatus, file, setFile }: { status: STATUS, setS
   }
 
   if (status === STATUS.ERROR) {
-    return <AlertError />
+    return <AlertError title="Acción no válida" description="Estás usando un estado inválido" />
   }
 
   return <Upload setStatus={setStatus} setFile={setFile} />;
 }
 
 export function App() {
-  const [status, setStatus] = useState<STATUS>(STATUS.INIT);
+  const [status, setStatus] = useState<STATUS>(STATUS.CHAT);
   const [file, setFile] = useState< File>({id: '', pages: 0, url: ''});
 
   return <ItemStatus status={status} setStatus={setStatus} file={file} setFile={setFile} />;

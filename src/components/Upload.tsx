@@ -59,7 +59,7 @@ export function Upload(props: UploadProps) {
         setFile(result);
       })();
 
-      setStatus(STATUS.CHAT);
+      //setStatus(STATUS.CHAT);
     }
   }, [acceptedFiles]);
 
