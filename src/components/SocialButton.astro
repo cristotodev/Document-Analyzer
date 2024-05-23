@@ -1,0 +1,17 @@
+---
+interface Props {
+  link: string;
+  message: string;
+}
+
+const { link, message } = Astro.props;
+---
+
+<a
+  class="flex no-underline py-4 px-2 text-black hover:text-black"
+  href={link}
+  target="_blank"
+>
+  <span class="sr-only">{message}</span>
+  <slot />
+</a>
