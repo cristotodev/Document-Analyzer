@@ -11,8 +11,9 @@ interface ChatProps {
 
 export function Chat(props: ChatProps) {
   const [loading, setLoading] = useState(false);
-  const [apiAnswer, setApiAnswer] = useState<string>('');
+  const [chatHistory, setChatHistory] = useState<{ question: string, answer: string }[]>([]);
   const [error, setError] = useState<{ title: string, description: string }>()
+  const [blockAction, setBlockAction] = useState(false);
   const { file } = props;
 
   const numOfImagesToShow = Math.min(file.pages, 4);
@@ -25,6 +26,10 @@ export function Chat(props: ChatProps) {
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
+
+    if(blockAction) return;
+
+    setBlockAction(true);
     setLoading(true);
 
     const question = event.target.question.value;
@@ -36,6 +41,7 @@ export function Chat(props: ChatProps) {
     const eventSource = new EventSource(`/api/ask?${searchParams.toString()}`)
     eventSource.onerror = (event) => {
       setLoading(false);
+      setBlockAction(false);
       setError({
         title: 'Error con tu asistente',
         description: 'Revisa que el modelo que estás usando es el correcto y si ollama está instalado.'
@@ -51,12 +57,25 @@ export function Chat(props: ChatProps) {
       setLoading(false);
       const incomingData = JSON.parse(event.data)
       if (incomingData === "__END__") {
-        setApiAnswer(prevState => prevState + incomingData)
+        setBlockAction(false);
         eventSource.close()
         return;
       }
 
-      setApiAnswer(prevState => prevState + incomingData)
+      if (incomingData.startsWith("__NEW_QUESTION__")) {
+        setChatHistory(prevChatHistory => [
+          ...prevChatHistory,
+          { question: question, answer: "" },
+        ]);
+      } else {
+        setChatHistory(prevChatHistory => {
+          const lastIndex = prevChatHistory.length - 1;
+          if (lastIndex >= 0) {
+            prevChatHistory[lastIndex].answer += incomingData;
+          }
+          return [...prevChatHistory];
+        });
+      }
     }
 
   }
@@ -85,23 +104,33 @@ export function Chat(props: ChatProps) {
         </div>
       ) : undefined}
 
-      {apiAnswer ? (
-        <div className="mt-8 mb-8 bg-gray-400">
-          <p>{apiAnswer}</p>
+      {chatHistory.length > 0 && (
+        <div className="bg-gray-50 p-4 rounded-lg shadow-md text-black">
+          {chatHistory.map((item, index) => (
+            <div key={index}>
+              <div className="flex justify-end mt-4">
+                <p className="bg-gray-300 p-2 rounded-lg shadow-md font-medium inline-block">{item.question}</p>
+              </div>
+              <div className="mt-4 flex justify-start">
+                <p className="bg-white p-2 rounded-lg shadow-md  font-medium">{item.answer}</p>
+              </div>
+            </div>
+          ))}
         </div>
-      ) : undefined}
+      )}
 
       <form
         onSubmit={handleSubmit}
-        className="flex w-full items-center space-x-2 text-black"
+        className="flex w-full items-center space-x-2 text-black mt-8"
       >
         <Input
           id="question"
           type="text"
           placeholder="¿En qué consiste este documento?"
           required
+          disabled={blockAction}
         />
-        <Button type="submit">Consultar</Button>
+        <Button type="submit" disabled={blockAction}>Consultar</Button>
       </form>
     </div>
 

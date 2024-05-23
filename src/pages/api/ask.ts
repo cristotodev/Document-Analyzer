@@ -37,6 +37,9 @@ export const GET: APIRoute = async ({ request }) => {
     const message = { role: 'user', content: `<context>${documentContent}</context><question>${question}</question>` }
     return responseSSE({ request }, async (sendEvent) => {
         const response = await ollama.chat({ model, messages: [message], stream: true });
+        
+        sendEvent('__NEW_QUESTION__');
+
         for await (const part of response) {
             sendEvent(part.message.content)
         }
