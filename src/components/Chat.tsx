@@ -19,13 +19,7 @@ export function Chat(props: ChatProps) {
   const [question, setQuestion] = useState<string>("");
   const { file } = props;
 
-  const numOfImagesToShow = Math.min(file.pages, 4);
-  const images = Array.from({ length: numOfImagesToShow }, (_, i) => {
-    const page = i + 1;
-    return file.url
-      .replace("/upload/", `/upload/w_400,h_540,c_fill,pg_${page}/`)
-      .replace(".pdf", ".jpg");
-  });
+  const images: string[] = []
 
   const handleChange = (event: any) => {
     setQuestion(event.target.value);
@@ -46,8 +40,7 @@ export function Chat(props: ChatProps) {
 
     const question = event.target.question.value;
     const searchParams = new URLSearchParams();
-    //searchParams.append('id', file.id);
-    searchParams.append('id', '65047c58c185bd39b2b0fd149881e025');
+    searchParams.append('id', file.id);
     searchParams.append('question', question);
 
     const eventSource = new EventSource(`/api/ask?${searchParams.toString()}`);

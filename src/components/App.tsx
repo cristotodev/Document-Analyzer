@@ -23,8 +23,8 @@ function ItemStatus({ status, setStatus, file, setFile }: { status: STATUS, setS
 }
 
 export function App() {
-  const [status, setStatus] = useState<STATUS>(STATUS.CHAT);
-  const [file, setFile] = useState<File>({ id: '', pages: 0, url: '' });
+  const [status, setStatus] = useState<STATUS>(STATUS.INIT);
+  const [file, setFile] = useState<File>({ id: '', pages: 0 });
   const [history, setHistory] = useState<{ date: Date, titles: string[] }[]>([]);
 
   const handleNewChat = () => {

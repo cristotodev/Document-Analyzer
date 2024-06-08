@@ -24,7 +24,7 @@ const UploadIcon = () => {
 
 interface UploadProps {
   setStatus: (status: STATUS) => void;
-  setFile: ({ id, url, pages }: File) => File;
+  setFile: ({ id, pages }: File) => File;
 }
 
 export function Upload(props: UploadProps) {
@@ -59,7 +59,7 @@ export function Upload(props: UploadProps) {
         setFile(result);
       })();
 
-      //setStatus(STATUS.CHAT);
+      setStatus(STATUS.CHAT);
     }
   }, [acceptedFiles]);
 
