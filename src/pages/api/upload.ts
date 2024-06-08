@@ -5,7 +5,7 @@ import path from 'node:path';
 import { PDFExtract } from "pdf.js-extract";
 
           
-const outputDir = path.join(process.cwd(), 'public/document')
+export const outputDir = path.join(process.cwd(), 'public/document')
 
 export const POST: APIRoute = async ({ request }) => {
   const formData = await request.formData();

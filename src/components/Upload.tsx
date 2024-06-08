@@ -1,7 +1,8 @@
 import { STATUS } from "@/types/appStatus";
 import type { File } from "@/types/file";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone-esm";
+import { PdfIcon } from "./icon/PdfIcon";
 
 const UploadIcon = () => {
   return (
@@ -29,7 +30,7 @@ interface UploadProps {
 
 export function Upload(props: UploadProps) {
   const { setStatus, setFile } = props;
-
+  const [files, setFiles] = useState<string[]>([])
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
     multiple: false,
     accept: {
@@ -38,6 +39,17 @@ export function Upload(props: UploadProps) {
   });
 
   useEffect(() => {
+    (async () => {
+      const res = await fetch("/api/files");
+      if (!res.ok) {
+        setStatus(STATUS.ERROR);
+        return;
+      }
+
+      const result = await res.json();
+      setFiles(result)
+    })();
+
     if (acceptedFiles.length > 0) {
       setStatus(STATUS.LOADING);
 
@@ -63,8 +75,19 @@ export function Upload(props: UploadProps) {
     }
   }, [acceptedFiles]);
 
+  const handleClickPdf = (e: any) => {
+    setFile({
+      id: e.target.innerText,
+      pages: 0
+    })
+    setStatus(STATUS.CHAT);
+  }
+
   return (
     <section>
+      <div>
+        {files.map((file, index) => (<div key={index} className="hover:cursor-pointer" onClick={handleClickPdf}>  {file}</div>))}
+      </div>
       <div
         {...getRootProps({ className: "dropzone" })}
         className="flex items-center justify-center w-full"
