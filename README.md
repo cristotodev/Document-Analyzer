@@ -2,6 +2,11 @@
 
 Document Analyzer es una herramienta que permite subir documentos y extraer información relevante mediante el uso de Ollama en local. Diseñado para simplificar el análisis de documentos mediante conversaciones inteligentes.
 
+<video width="600" controls>
+  <source src="doc/demostracion.mp4" type="video/mp4">
+  Tu navegador no soporta la reproducción de videos.
+</video>
+
 ## Características
 
 - Interacción en tiempo real con Ollama para preguntas detalladas sobre el contenido del documento.
